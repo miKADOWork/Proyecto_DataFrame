@@ -4,8 +4,8 @@
 
 import pandas as pd
 import time as tm # Paquete tiempo 
-import regex
-import xlsxwriter
+#import regex
+#import xlsxwriter
 from openpyxl.styles import PatternFill, GradientFill
 import openpyxl
 
