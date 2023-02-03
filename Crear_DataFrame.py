@@ -5,7 +5,6 @@
 import pandas as pd
 import time as tm # Paquete tiempo 
 #import regex
-#import xlsxwriter
 from openpyxl.styles import PatternFill, GradientFill
 import openpyxl
 
@@ -18,6 +17,21 @@ PATH_TO_DATA = "subvenciones.csv"
 NOMBRE_EXCEL_CREADO = "Resumen_Subenciones.xlsx"
 COLUMNA_INICIO = 5
 FILA_INICIO = 5
+
+# --------------------------------------------------------------------------------------------------------------------------
+# Colores de Celdas
+# --------------------------------------------------------------------------------------------------------------------------
+
+redFill = PatternFill   (  
+                            start_color='FFFF0000',
+                            end_color='FFFF0000',
+                            fill_type='solid'
+                        )
+
+yellowFill = PatternFill   (  
+                            start_color="FFFF00",
+                            fill_type='solid'
+                        )
 
 # --------------------------------------------------------------------------------------------------------------------------
 # Funciones
@@ -121,31 +135,20 @@ Libro_Excel = pd.read_excel (
 print(Libro_Excel)
 
 # Pintamos todas las columnas
-redFill = PatternFill   (  
-                            start_color='FFFF0000',
-                            end_color='FFFF0000',
-                            fill_type='solid'
-                        )
-
-greenFill = PatternFill   (  
-                            start_color="FFFF00",
-                            fill_type='solid'
-                        )
-
 wb =  openpyxl.load_workbook(NOMBRE_EXCEL_CREADO)     # Abrimos el Libro de excel
 wb.active = wb["Datos_Operados"]
 
 # Coloreamos la cabezera de la tabla
-rango_cabezera = str(chr(ord("A") + COLUMNA_INICIO )) + str(FILA_INICIO + 1) + ":" + str(chr(ord("A") + COLUMNA_INICIO + shape_de_df[1] -1)) + str(FILA_INICIO + 1) 
-Pinta_Filas(rango_cabezera, greenFill)
+rango_cabezera = str(chr(ord("A") + COLUMNA_INICIO )) + str(FILA_INICIO + 1) + ":" + str(chr(ord("A") + COLUMNA_INICIO + shape_de_df[1] - 1)) + str(FILA_INICIO + 1) 
+Pinta_Filas(rango_cabezera, redFill)
 
 # Coloreamos alternando con dos colores las columnas del resultado
 for i in range(0, shape_de_df[1]):
-    posicion = chr(ord(columnas_seleccionadas[0]) + i) + str(FILA_INICIO + 2) + ":" + chr(ord(columnas_seleccionadas[0]) + i ) + str(shape_de_df[0] + FILA_INICIO + 2) # 1 porque empieza contando en 0 y excel en 1 y el otro por la linea del header 
+    posicion = chr(ord(columnas_seleccionadas[0]) + i) + str(FILA_INICIO + 2) + ":" + chr(ord(columnas_seleccionadas[0]) + i) + str(shape_de_df[0] + FILA_INICIO + 2) # 1 porque empieza contando en 0 y excel en 1 y el otro por la linea del header 
     if (i%2 == 0):
         Pinta_Columnas(posicion, redFill)
     else:
-        Pinta_Columnas(posicion, greenFill)
+        Pinta_Columnas(posicion, yellowFill)
 
 # Guardamos los canvios sobrescribiendo el archivo original
 wb.save(NOMBRE_EXCEL_CREADO)
@@ -163,3 +166,7 @@ wb.save(NOMBRE_EXCEL_CREADO)
 
 # Por practicar mas, creamos un archivo de word que contenga estos datos en un informe
 
+##### TODO: 
+# Falta que el texto que contiene la columna en las funciones de colorear no solo sea de un caracter por ejemplo podriamos a priori trabajar en la celda BB34 
+# Hacer uso de reggex para la mejor simplificacion del codigo posible
+# Poner en las celdas con las asociaciones, la palabra AMPA en negrita
