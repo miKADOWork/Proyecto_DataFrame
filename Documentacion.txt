@@ -1,0 +1,16 @@
+ 
+ Documentación del proyecto para practicar y mejorar en el uso de Pandas en Python.
+ 
+ 
+ 
+ Introducción:
+ Este código no tiene ningún uso mas alla del que me sirve para formarme en el uso de DataFrames y la creación y manipulación de informes a traves de datos de un Dataframe
+ 
+ 
+ 
+ Funciones del programa:
+ 
+ 
+ 
+ 
+ Codigo:
