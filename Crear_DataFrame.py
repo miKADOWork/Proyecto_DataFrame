@@ -43,7 +43,7 @@ def Pinta_Columnas(rango_seleccionado, patron_relleno):
     Entran un string de la forma <columna><numero_inicial>:<columna><numero_final>
     """
     # Separamos el rango en la celda inicial y la final
-    rango = rango_seleccionado.split(sep=':')
+    rango = rango_seleccionado.split(sep=':') 
     columna_nombre = rango[0][0]
     rango = [
                 rango[0].replace(columna_nombre, ""), 
@@ -74,7 +74,7 @@ def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
 
     rango = [
                 columna_inicial_nombre, 
-                columna_final_nombre
+                columna_final_nombre,
             ]
 
     for columna in range(ord(rango[0])-ord(rango[0]), ord(rango[1]) - ord(rango[0]) + 1):
@@ -99,6 +99,7 @@ df["Importe"] = df["Importe"].astype(float)
 # Ordenamos por nombre las asociaciones para que esten alineados con los datos correctos ya que les hemos hecho un sort pero al eliminar duplicidades con un set quedan desorganizados
 Lista_Asociaciones = list({a for a in df["Asociación"]})
 Lista_Asociaciones.sort()
+
 dic =   {
             "Asociación":   Lista_Asociaciones,
             "Max":          [float(a) for a in df.groupby(by = 'Asociación',).max()["Importe"]],
@@ -139,7 +140,7 @@ wb =  openpyxl.load_workbook(NOMBRE_EXCEL_CREADO)     # Abrimos el Libro de exce
 wb.active = wb["Datos_Operados"]
 
 # Coloreamos la cabezera de la tabla
-rango_cabezera = str(chr(ord("A") + COLUMNA_INICIO )) + str(FILA_INICIO + 1) + ":" + str(chr(ord("A") + COLUMNA_INICIO + shape_de_df[1] - 1)) + str(FILA_INICIO + 1) 
+rango_cabezera = str(chr(ord("A") + COLUMNA_INICIO)) + str(FILA_INICIO + 1) + ":" + str(chr(ord("A") + COLUMNA_INICIO + shape_de_df[1] - 1)) + str(FILA_INICIO + 1) 
 Pinta_Filas(rango_cabezera, redFill)
 
 # Coloreamos alternando con dos colores las columnas del resultado
@@ -152,8 +153,6 @@ for i in range(0, shape_de_df[1]):
 
 # Guardamos los canvios sobrescribiendo el archivo original
 wb.save(NOMBRE_EXCEL_CREADO)
-
-
 
 # Ponemos en negrita en todas las celdas en las que aparezca la palaba "AMPA" dicha palabra en negrita (Usamos regex)
 #df['team'] =  [re.sub(r'[\n\r]*','', str(x)) for x in df['team']]
