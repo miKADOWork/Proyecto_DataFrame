@@ -4,7 +4,8 @@
 
 import pandas as pd
 import time as tm # Paquete tiempo 
-#import regex
+import regex
+import re
 #import xlsxwriter
 from openpyxl.styles import PatternFill, GradientFill
 import openpyxl
@@ -30,14 +31,18 @@ def Pinta_Columnas(rango_seleccionado, patron_relleno):
     """
     # Separamos el rango en la celda inicial y la final
     rango = rango_seleccionado.split(sep=':')
-    columna_nombre = rango[0][0]
+    
+    # Solo encontrara una coincidencia que se guardara en la posicion 0
+    columna_nombre = re.findall("([A-Z])\w+", rango[0])[0] 
+
     rango = [
                 rango[0].replace(columna_nombre, ""), 
                 rango[1].replace(columna_nombre, "")
             ]
-
+    
     for fila in range(int(rango[0]), int(rango[1])):
         wb.active[columna_nombre + str(fila)].fill = patron_relleno
+    
 
 
 def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
