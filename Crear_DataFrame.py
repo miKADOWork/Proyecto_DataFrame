@@ -63,6 +63,7 @@ def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
  
     # Separamos el rango en la celda inicial y la final
     rango = rango_seleccionado.split(sep=':')
+    
     for pos in range(0, len(rango[0])):
         columna_inicial_nombre = "".join([i for i in rango[0] if not i.isdigit()])
 
@@ -167,5 +168,4 @@ wb.save(NOMBRE_EXCEL_CREADO)
 
 ##### TODO: 
 # Falta que el texto que contiene la columna en las funciones de colorear no solo sea de un caracter por ejemplo podriamos a priori trabajar en la celda BB34 
-# Hacer uso de reggex para la mejor simplificacion del codigo posible
 # Poner en las celdas con las asociaciones, la palabra AMPA en negrita
