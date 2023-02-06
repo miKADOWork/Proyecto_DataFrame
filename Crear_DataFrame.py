@@ -60,7 +60,7 @@ def Pinta_Columnas(rango_seleccionado, patron_relleno):
     
 
 
-def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
+def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA (mirar el TODO)
     """
     Entran un string de la forma <fila_inicial><numero>:<fila_final><numero>
     """
@@ -84,9 +84,9 @@ def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
     # Falta mejorar como se realiza el rango paracontemplar casos de nom column AA ABC 
     for columna in range(ord(rango[0])-ord(rango[0]), ord(rango[1]) - ord(rango[0]) + 1):
         wb.active[chr(ord(columna_inicial_nombre) + columna) + fila_de_trabajo].fill = patron_relleno
-        
-# Selecciona un rango (quadrado) de celdas y les aplica el relleno
-def PintarRango(rango_seleccionado, patron_relleno):
+
+
+def Pinta_Rango (rango_seleccionado, patron_relleno):
     """
 
     Args:
@@ -99,35 +99,23 @@ def PintarRango(rango_seleccionado, patron_relleno):
         Funciona con una convinación de PintarFilas y partes de PintarColumnas de forma que genere los strings apropiadamente para poder pasarlos a PintarFilas y
         ir realizando fila a fila los ajustes de color necesarios.
     """
-    # Este es el string de entrada para cada iteracion del patron de relleno por filas (a la funcion PintFilas)
-    rango_iteracion_str = ""
-    
-    # tratamos el string de entrada a la función:
-    rango_filas = rango_seleccionado.split(sep=':')
-    rango_col = rango_seleccionado.split(sep=':')
-    
-    # Ahora tenemos que movernos por cada fila asi que tenemos que calcular el intervalo de filas en el que nos movemos
-    fila_inicial = int(re.findall("([0-9])+", rango_col[0])[0])        # Calculmaos la primera fila 
-    fila_final = int(re.findall("([0-9])+", rango_col[1])[0])          # Obtenemos la ultima fila 
-    
-    # Ahora calculamos el rango de columnas
-    columna_inicial_nombre = re.findall("([A-Z])\w+", rango_filas[0])[0] 
-    columna_final_nombre = re.findall("([A-Z])\w+", rango_filas[1])[0] 
-    
-    # La columna inicial siempre se mantendra fija a lo largo de las iteraciones del for asi que la podemos añadir directamente:
-    rango_iteracion_str += columna_inicial_nombre
 
-    # Generamos los strings que le pasaremos a la funcion PintaFilas
-    for pos in range(fila_inicial, fila_final):
-        print()
-        """
-        rango_iteracion_str += str(fila)
-        Pinta_Filas(rango_iteracion_str, patron_relleno)                # Llamamos a la función para que pinte las celdas 
-        
-        # Reseteamos la variable 
-        rango_iteracion_str = rango_iteracion_str.replace(str(fila), "")
-        """
+    # Entra un string de la forma  "<col_inicial><fila_inicial> : <col_final><fila_final> " por tanto lo purgamos para
+    # trabajar de forma mas simple
+    rango = rango_seleccionado.split(sep=':')
     
+    # Calculamos las possiciones de interes:
+    columna_inicial = re.findall("([A-Z])\w+", rango[0])[0] 
+    columna_final = re.findall("([A-Z])\w+", rango[1])[0] 
+    fila_inicial = int(re.findall("[0-9]+", rango[0])[0])
+    fila_final = int(re.findall("[0-9]+", rango[1])[0])
+    
+    # Para cada fila calculamos el string que pasaremos a la funcion Pinta_Filas
+    for fila in range(fila_inicial, fila_final + 1):
+        rango_para_pintar_iteracion = columna_inicial + str(fila) + ":" + columna_final + str(fila)
+        Pinta_Filas(rango_para_pintar_iteracion, patron_relleno)
+    
+
 
 # --------------------------------------------------------------------------------------------------------------------------
 # Programa
@@ -186,7 +174,7 @@ print(Libro_Excel)
 # Pintamos todas las columnas
 wb =  openpyxl.load_workbook(NOMBRE_EXCEL_CREADO)     # Abrimos el Libro de excel
 wb.active = wb["Datos_Operados"]
-
+"""
 # Coloreamos la cabezera de la tabla
 rango_cabezera = str(chr(ord("A") + COLUMNA_INICIO)) + str(FILA_INICIO + 1) + ":" + str(chr(ord("A") + COLUMNA_INICIO + shape_de_df[1] - 1)) + str(FILA_INICIO + 1) 
 Pinta_Filas(rango_cabezera, redFill)
@@ -198,12 +186,8 @@ for i in range(0, shape_de_df[1]):
         Pinta_Columnas(posicion, redFill)
     else:
         Pinta_Columnas(posicion, yellowFill)
-
-
-print("Hello")
-PintarRango("F6:I33", redFill)
-print("Goodbye")
-
+"""
+Pinta_Rango ("F6:I33", yellowFill)
 # Guardamos los canvios sobrescribiendo el archivo original
 wb.save(NOMBRE_EXCEL_CREADO)
 
