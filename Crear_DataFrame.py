@@ -116,14 +116,17 @@ def PintarRango(rango_seleccionado, patron_relleno):
     
     # La columna inicial siempre se mantendra fija a lo largo de las iteraciones del for asi que la podemos añadir directamente:
     rango_iteracion_str += columna_inicial_nombre
-    
+
     # Generamos los strings que le pasaremos a la funcion PintaFilas
-    for fila in range(fila_final, fila_final):
+    for pos in range(fila_inicial, fila_final):
+        print()
+        """
         rango_iteracion_str += str(fila)
-        Pinta_Filas(rango_seleccionado, patron_relleno)                # Llamamos a la función para que pinte las celdas 
+        Pinta_Filas(rango_iteracion_str, patron_relleno)                # Llamamos a la función para que pinte las celdas 
         
         # Reseteamos la variable 
         rango_iteracion_str = rango_iteracion_str.replace(str(fila), "")
+        """
     
 
 # --------------------------------------------------------------------------------------------------------------------------
@@ -195,6 +198,11 @@ for i in range(0, shape_de_df[1]):
         Pinta_Columnas(posicion, redFill)
     else:
         Pinta_Columnas(posicion, yellowFill)
+
+
+print("Hello")
+PintarRango("F6:I33", redFill)
+print("Goodbye")
 
 # Guardamos los canvios sobrescribiendo el archivo original
 wb.save(NOMBRE_EXCEL_CREADO)
