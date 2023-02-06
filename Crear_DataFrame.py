@@ -5,7 +5,7 @@
 import pandas as pd
 import time as tm # Paquete tiempo 
 import regex
-import re
+import re as re
 #import xlsxwriter
 from openpyxl.styles import PatternFill, GradientFill
 import openpyxl
@@ -84,7 +84,47 @@ def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
     # Falta mejorar como se realiza el rango paracontemplar casos de nom column AA ABC 
     for columna in range(ord(rango[0])-ord(rango[0]), ord(rango[1]) - ord(rango[0]) + 1):
         wb.active[chr(ord(columna_inicial_nombre) + columna) + fila_de_trabajo].fill = patron_relleno
+        
+# Selecciona un rango (quadrado) de celdas y les aplica el relleno
+def PintarRango(rango_seleccionado, patron_relleno):
+    """
 
+    Args:
+        rango_seleccionado (string): Continene la primera celda y la ultima del rango seleccionado
+                                     El string de entrada sera de la forma siguiente:
+                                        "<columna_inicial> <fila_inicial> : <columna_final> <fila final>"
+                                        
+        patron_relleno (format): Contiene el estilo de lo que se le aplicara a dicha seleccion de celdas
+    Function:
+        Funciona con una convinación de PintarFilas y partes de PintarColumnas de forma que genere los strings apropiadamente para poder pasarlos a PintarFilas y
+        ir realizando fila a fila los ajustes de color necesarios.
+    """
+    # Este es el string de entrada para cada iteracion del patron de relleno por filas (a la funcion PintFilas)
+    rango_iteracion_str = ""
+    
+    # tratamos el string de entrada a la función:
+    rango_filas = rango_seleccionado.split(sep=':')
+    rango_col = rango_seleccionado.split(sep=':')
+    
+    # Ahora tenemos que movernos por cada fila asi que tenemos que calcular el intervalo de filas en el que nos movemos
+    fila_inicial = int(re.findall("([0-9])+", rango_col[0])[0])        # Calculmaos la primera fila 
+    fila_final = int(re.findall("([0-9])+", rango_col[1])[0])          # Obtenemos la ultima fila 
+    
+    # Ahora calculamos el rango de columnas
+    columna_inicial_nombre = re.findall("([A-Z])\w+", rango_filas[0])[0] 
+    columna_final_nombre = re.findall("([A-Z])\w+", rango_filas[1])[0] 
+    
+    # La columna inicial siempre se mantendra fija a lo largo de las iteraciones del for asi que la podemos añadir directamente:
+    rango_iteracion_str += columna_inicial_nombre
+    
+    # Generamos los strings que le pasaremos a la funcion PintaFilas
+    for fila in range(fila_final, fila_final):
+        rango_iteracion_str += str(fila)
+        Pinta_Filas(rango_seleccionado, patron_relleno)                # Llamamos a la función para que pinte las celdas 
+        
+        # Reseteamos la variable 
+        rango_iteracion_str = rango_iteracion_str.replace(str(fila), "")
+    
 
 # --------------------------------------------------------------------------------------------------------------------------
 # Programa
