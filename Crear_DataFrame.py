@@ -44,8 +44,10 @@ def Pinta_Columnas(rango_seleccionado, patron_relleno):
     """
     Entran un string de la forma <columna><numero_inicial>:<columna><numero_final>
     """
+    # Separamos el rango en la celda inicial y la final
+    rango = rango_seleccionado.split(sep=':')
     
-    # Solo encontrara dos coincidencias y son la misma letra de coincidencia que se guardara en la posicion 0
+    # Solo encontrara una coincidencia que se guardara en la posicion 0
     columna_nombre = re.findall("([A-Z])\w+", rango[0])[0] 
 
     rango = [
@@ -67,20 +69,19 @@ def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
  
     # Separamos el rango en la celda inicial y la final
     rango = rango_seleccionado.split(sep=':')
-    for pos in range(0, len(rango[0])):
-        columna_inicial_nombre = "".join([i for i in rango[0] if not i.isdigit()])
 
-    for pos in range(0, len(rango[0])):
-        columna_final_nombre = "".join([i for i in rango[1] if not i.isdigit()])
+    columna_inicial_nombre = re.findall("([A-Z])\w+", rango[0])[0] 
+
+    columna_final_nombre = re.findall("([A-Z])\w+", rango[1])[0] 
     
     # Calculamos la fila sobre la que trabajamos
     fila_de_trabajo = rango[0].replace(columna_inicial_nombre, "")
-
+    fila_de_trabajo_final = re.findall("([0-9])+", rango[1])[0] 
     rango = [
                 columna_inicial_nombre, 
                 columna_final_nombre,
             ]
-
+    # Falta mejorar como se realiza el rango paracontemplar casos de nom column AA ABC 
     for columna in range(ord(rango[0])-ord(rango[0]), ord(rango[1]) - ord(rango[0]) + 1):
         wb.active[chr(ord(columna_inicial_nombre) + columna) + fila_de_trabajo].fill = patron_relleno
 
@@ -171,5 +172,4 @@ wb.save(NOMBRE_EXCEL_CREADO)
 
 ##### TODO: 
 # Falta que el texto que contiene la columna en las funciones de colorear no solo sea de un caracter por ejemplo podriamos a priori trabajar en la celda BB34 
-# Hacer uso de reggex para la mejor simplificacion del codigo posible
 # Poner en las celdas con las asociaciones, la palabra AMPA en negrita
