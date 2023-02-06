@@ -4,7 +4,9 @@
 
 import pandas as pd
 import time as tm # Paquete tiempo 
-#import regex
+import regex
+import re
+#import xlsxwriter
 from openpyxl.styles import PatternFill, GradientFill
 import openpyxl
 
@@ -43,15 +45,19 @@ def Pinta_Columnas(rango_seleccionado, patron_relleno):
     Entran un string de la forma <columna><numero_inicial>:<columna><numero_final>
     """
     # Separamos el rango en la celda inicial y la final
-    rango = rango_seleccionado.split(sep=':') 
-    columna_nombre = rango[0][0]
+    rango = rango_seleccionado.split(sep=':')
+    
+    # Solo encontrara una coincidencia que se guardara en la posicion 0
+    columna_nombre = re.findall("([A-Z])\w+", rango[0])[0] 
+
     rango = [
                 rango[0].replace(columna_nombre, ""), 
                 rango[1].replace(columna_nombre, "")
             ]
-
+    
     for fila in range(int(rango[0]), int(rango[1])):
         wb.active[columna_nombre + str(fila)].fill = patron_relleno
+    
 
 
 def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
@@ -63,21 +69,19 @@ def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
  
     # Separamos el rango en la celda inicial y la final
     rango = rango_seleccionado.split(sep=':')
-    
-    for pos in range(0, len(rango[0])):
-        columna_inicial_nombre = "".join([i for i in rango[0] if not i.isdigit()])
 
-    for pos in range(0, len(rango[0])):
-        columna_final_nombre = "".join([i for i in rango[1] if not i.isdigit()])
+    columna_inicial_nombre = re.findall("([A-Z])\w+", rango[0])[0] 
+
+    columna_final_nombre = re.findall("([A-Z])\w+", rango[1])[0] 
     
     # Calculamos la fila sobre la que trabajamos
     fila_de_trabajo = rango[0].replace(columna_inicial_nombre, "")
-
+    fila_de_trabajo_final = re.findall("([0-9])+", rango[1])[0] 
     rango = [
                 columna_inicial_nombre, 
                 columna_final_nombre,
             ]
-
+    # Falta mejorar como se realiza el rango paracontemplar casos de nom column AA ABC 
     for columna in range(ord(rango[0])-ord(rango[0]), ord(rango[1]) - ord(rango[0]) + 1):
         wb.active[chr(ord(columna_inicial_nombre) + columna) + fila_de_trabajo].fill = patron_relleno
 
