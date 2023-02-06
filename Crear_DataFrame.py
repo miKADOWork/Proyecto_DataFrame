@@ -44,10 +44,8 @@ def Pinta_Columnas(rango_seleccionado, patron_relleno):
     """
     Entran un string de la forma <columna><numero_inicial>:<columna><numero_final>
     """
-    # Separamos el rango en la celda inicial y la final
-    rango = rango_seleccionado.split(sep=':')
     
-    # Solo encontrara una coincidencia que se guardara en la posicion 0
+    # Solo encontrara dos coincidencias y son la misma letra de coincidencia que se guardara en la posicion 0
     columna_nombre = re.findall("([A-Z])\w+", rango[0])[0] 
 
     rango = [
