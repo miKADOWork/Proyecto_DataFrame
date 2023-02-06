@@ -4,7 +4,9 @@
 
 import pandas as pd
 import time as tm # Paquete tiempo 
-#import regex
+import regex
+import re
+#import xlsxwriter
 from openpyxl.styles import PatternFill, GradientFill
 import openpyxl
 
@@ -43,18 +45,22 @@ def Pinta_Columnas(rango_seleccionado, patron_relleno):
     Entran un string de la forma <columna><numero_inicial>:<columna><numero_final>
     """
     # Separamos el rango en la celda inicial y la final
-    rango = rango_seleccionado.split(sep=':') 
-    columna_nombre = rango[0][0]
+    rango = rango_seleccionado.split(sep=':')
+    
+    # Solo encontrara una coincidencia que se guardara en la posicion 0
+    columna_nombre = re.findall("([A-Z])\w+", rango[0])[0] 
+
     rango = [
                 rango[0].replace(columna_nombre, ""), 
                 rango[1].replace(columna_nombre, "")
             ]
-
+    
     for fila in range(int(rango[0]), int(rango[1])):
         wb.active[columna_nombre + str(fila)].fill = patron_relleno
+    
 
 
-def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
+def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA (mirar el TODO)
     """
     Entran un string de la forma <fila_inicial><numero>:<fila_final><numero>
     """
@@ -63,22 +69,40 @@ def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA
  
     # Separamos el rango en la celda inicial y la final
     rango = rango_seleccionado.split(sep=':')
-    for pos in range(0, len(rango[0])):
-        columna_inicial_nombre = "".join([i for i in rango[0] if not i.isdigit()])
 
-    for pos in range(0, len(rango[0])):
-        columna_final_nombre = "".join([i for i in rango[1] if not i.isdigit()])
+    columna_inicial_nombre = re.findall("([A-Z])\w+", rango[0])[0] 
+
+    columna_final_nombre = re.findall("([A-Z])\w+", rango[1])[0] 
     
     # Calculamos la fila sobre la que trabajamos
     fila_de_trabajo = rango[0].replace(columna_inicial_nombre, "")
-
+    fila_de_trabajo_final = re.findall("([0-9])+", rango[1])[0] 
     rango = [
                 columna_inicial_nombre, 
                 columna_final_nombre,
             ]
-
+    # Falta mejorar como se realiza el rango paracontemplar casos de nom column AA ABC 
     for columna in range(ord(rango[0])-ord(rango[0]), ord(rango[1]) - ord(rango[0]) + 1):
         wb.active[chr(ord(columna_inicial_nombre) + columna) + fila_de_trabajo].fill = patron_relleno
+
+
+def Pinta_Rango (rango_seleccionado, patron_relleno):
+
+    # Entra un string de la forma  "<col_inicial><fila_inicial> : <col_final><fila_final> " por tanto lo purgamos para
+    # trabajar de forma mas simple
+    rango = rango_seleccionado.split(sep=':')
+    
+    # Calculamos las possiciones de interes:
+    columna_inicial = re.findall("([A-Z])\w+", rango[0])[0] 
+    columna_final = re.findall("([A-Z])\w+", rango[1])[0] 
+    fila_inicial = int(re.findall("[0-9]+", rango[0])[0])
+    fila_final = int(re.findall("[0-9]+", rango[1])[0])
+    
+    # Para cada fila calculamos el string que pasaremos a la funcion Pinta_Filas
+    for fila in range(fila_inicial, fila_final + 1):
+        rango_para_pintar_iteracion = columna_inicial + str(fila) + ":" + columna_final + str(fila)
+        Pinta_Filas(rango_para_pintar_iteracion, patron_relleno)
+    
 
 
 # --------------------------------------------------------------------------------------------------------------------------
@@ -138,7 +162,7 @@ print(Libro_Excel)
 # Pintamos todas las columnas
 wb =  openpyxl.load_workbook(NOMBRE_EXCEL_CREADO)     # Abrimos el Libro de excel
 wb.active = wb["Datos_Operados"]
-
+"""
 # Coloreamos la cabezera de la tabla
 rango_cabezera = str(chr(ord("A") + COLUMNA_INICIO)) + str(FILA_INICIO + 1) + ":" + str(chr(ord("A") + COLUMNA_INICIO + shape_de_df[1] - 1)) + str(FILA_INICIO + 1) 
 Pinta_Filas(rango_cabezera, redFill)
@@ -150,7 +174,8 @@ for i in range(0, shape_de_df[1]):
         Pinta_Columnas(posicion, redFill)
     else:
         Pinta_Columnas(posicion, yellowFill)
-
+"""
+Pinta_Rango ("F6:I33", yellowFill)
 # Guardamos los canvios sobrescribiendo el archivo original
 wb.save(NOMBRE_EXCEL_CREADO)
 
@@ -167,5 +192,4 @@ wb.save(NOMBRE_EXCEL_CREADO)
 
 ##### TODO: 
 # Falta que el texto que contiene la columna en las funciones de colorear no solo sea de un caracter por ejemplo podriamos a priori trabajar en la celda BB34 
-# Hacer uso de reggex para la mejor simplificacion del codigo posible
 # Poner en las celdas con las asociaciones, la palabra AMPA en negrita
