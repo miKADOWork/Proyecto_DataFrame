@@ -6,9 +6,10 @@ import pandas as pd
 import time as tm # Paquete tiempo 
 import regex
 import re as re
+import os
 #import xlsxwriter
-from openpyxl.styles import PatternFill, GradientFill
 import openpyxl
+from openpyxl.styles import PatternFill, GradientFill
 
 # --------------------------------------------------------------------------------------------------------------------------
 # Variables Globales
@@ -20,6 +21,12 @@ NOMBRE_EXCEL_CREADO = "Resumen_Subenciones.xlsx"
 COLUMNA_INICIO = 5
 FILA_INICIO = 5
 
+# Para calcular el nombre de las columnas en excel
+NUM_LETRAS_ALPHABET = 26                            # numero de letras en el alfabeto ingles
+DECENAS = NUM_LETRAS_ALPHABET*NUM_LETRAS_ALPHABET   #
+CENTENAS = DECENAS*NUM_LETRAS_ALPHABET              #
+LIM = DECENAS + NUM_LETRAS_ALPHABET                 #
+
 # --------------------------------------------------------------------------------------------------------------------------
 # Colores de Celdas
 # --------------------------------------------------------------------------------------------------------------------------
@@ -30,7 +37,7 @@ redFill = PatternFill   (
                             fill_type='solid'
                         )
 
-yellowFill = PatternFill   (  
+yellowFill = PatternFill(  
                             start_color="FFFF00",
                             fill_type='solid'
                         )
@@ -40,10 +47,35 @@ yellowFill = PatternFill   (
 # --------------------------------------------------------------------------------------------------------------------------
 
 
-def Pinta_Columnas(rango_seleccionado, patron_relleno):
+def Calculador_Nombre_Columnas (num_columna):
+    """
+    Args:
+        num_columna (int): La possición de la columna de Excel numericamente (EMPEZANDO POR 0)
+
+    Returns:
+        string: La possicion con la nomenglatura de Excel para las columnas
+    """
+    Letra = ""
+    num_veces = num_columna // NUM_LETRAS_ALPHABET - 1       # Guardamos el quocient de la division Euclidiana, le restamos uno porque trabajamos con modulo y la primera possicion seria un 1 en vez de 0
+    resto = num_columna % NUM_LETRAS_ALPHABET                # Guardamos el residu de la division Euclidiana 
+    
+    if num_columna < NUM_LETRAS_ALPHABET:
+        Letra = chr(ord("A") + num_columna)
+    elif (num_columna < LIM):
+        Letra = chr(ord("A") + (num_veces)) + chr(ord("A") + resto)
+    elif (LIM <= num_columna):
+        Letra = chr(ord("A") + (num_columna % NUM_LETRAS_ALPHABET))
+        Letra = chr(ord("A") + (num_veces % NUM_LETRAS_ALPHABET)) + Letra
+        num_veces = num_veces // NUM_LETRAS_ALPHABET - 1
+        Letra = chr(ord("A") + num_veces) + Letra
+    return Letra 
+
+
+def Pinta_Columnas (rango_seleccionado, patron_relleno):
     """
     Entran un string de la forma <columna><numero_inicial>:<columna><numero_final>
     """
+    
     # Separamos el rango en la celda inicial y la final
     rango = rango_seleccionado.split(sep=':')
     
@@ -59,19 +91,17 @@ def Pinta_Columnas(rango_seleccionado, patron_relleno):
         wb.active[columna_nombre + str(fila)].fill = patron_relleno
     
 
-
-def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA (mirar el TODO)
+def Pinta_Filas (rango_seleccionado, patron_relleno): # FALTA ACABARLA (mirar el TODO)
     """
     Entran un string de la forma <fila_inicial><numero>:<fila_final><numero>
     """
+    
     columna_inicial_nombre = ""
     columna_final_nombre = ""
  
-    # Separamos el rango en la celda inicial y la final
+    # Separamos el rango en la celda inicial y la final 
     rango = rango_seleccionado.split(sep=':')
-
     columna_inicial_nombre = re.findall("([A-Z])\w+", rango[0])[0] 
-
     columna_final_nombre = re.findall("([A-Z])\w+", rango[1])[0] 
     
     # Calculamos la fila sobre la que trabajamos
@@ -88,7 +118,6 @@ def Pinta_Filas(rango_seleccionado, patron_relleno): # FALTA ACABARLA (mirar el 
 
 def Pinta_Rango (rango_seleccionado, patron_relleno):
     """
-
     Args:
         rango_seleccionado (string): Continene la primera celda y la ultima del rango seleccionado
                                      El string de entrada sera de la forma siguiente:
@@ -115,7 +144,6 @@ def Pinta_Rango (rango_seleccionado, patron_relleno):
         rango_para_pintar_iteracion = columna_inicial + str(fila) + ":" + columna_final + str(fila)
         Pinta_Filas(rango_para_pintar_iteracion, patron_relleno)
     
-
 
 # --------------------------------------------------------------------------------------------------------------------------
 # Programa
@@ -174,7 +202,7 @@ print(Libro_Excel)
 # Pintamos todas las columnas
 wb =  openpyxl.load_workbook(NOMBRE_EXCEL_CREADO)     # Abrimos el Libro de excel
 wb.active = wb["Datos_Operados"]
-"""
+
 # Coloreamos la cabezera de la tabla
 rango_cabezera = str(chr(ord("A") + COLUMNA_INICIO)) + str(FILA_INICIO + 1) + ":" + str(chr(ord("A") + COLUMNA_INICIO + shape_de_df[1] - 1)) + str(FILA_INICIO + 1) 
 Pinta_Filas(rango_cabezera, redFill)
@@ -186,7 +214,7 @@ for i in range(0, shape_de_df[1]):
         Pinta_Columnas(posicion, redFill)
     else:
         Pinta_Columnas(posicion, yellowFill)
-"""
+
 Pinta_Rango ("F6:I33", yellowFill)
 # Guardamos los canvios sobrescribiendo el archivo original
 wb.save(NOMBRE_EXCEL_CREADO)
@@ -194,11 +222,23 @@ wb.save(NOMBRE_EXCEL_CREADO)
 # Ponemos en negrita en todas las celdas en las que aparezca la palaba "AMPA" dicha palabra en negrita (Usamos regex)
 #df['team'] =  [re.sub(r'[\n\r]*','', str(x)) for x in df['team']]
 
+for i in range(CENTENAS, CENTENAS + DECENAS + NUM_LETRAS_ALPHABET):
+    print(Calculador_Nombre_Columnas(i))
 
+print("Valores importantes:")
+print("----------------------------------------------------------------")
+print(Calculador_Nombre_Columnas(0))
+print(Calculador_Nombre_Columnas(NUM_LETRAS_ALPHABET -1))
+print("----------------------------------------------------------------")
+print(Calculador_Nombre_Columnas(DECENAS -1))
+print(Calculador_Nombre_Columnas(DECENAS + NUM_LETRAS_ALPHABET -1))
+print("----------------------------------------------------------------")
+print(Calculador_Nombre_Columnas(CENTENAS + NUM_LETRAS_ALPHABET -1))
+print(Calculador_Nombre_Columnas(CENTENAS + NUM_LETRAS_ALPHABET + DECENAS -1))
+print("----------------------------------------------------------------")
 
-
-
-
+# Eliminamos el Excel creado
+os.system(f"rm {NOMBRE_EXCEL_CREADO}")
 
 # Por practicar mas, creamos un archivo de word que contenga estos datos en un informe
 
