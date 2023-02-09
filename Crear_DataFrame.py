@@ -113,7 +113,7 @@ def Pinta_Filas (rango_seleccionado, patron_relleno): # FALTA ACABARLA (mirar el
             ]
     # Falta mejorar como se realiza el rango paracontemplar casos de nom column AA ABC 
     for columna in range(ord(rango[0])-ord(rango[0]), ord(rango[1]) - ord(rango[0]) + 1):
-        wb.active[chr(ord(columna_inicial_nombre) + columna) + fila_de_trabajo].fill = patron_relleno
+        wb.active[Calculador_Nombre_Columnas(ord(columna_inicial_nombre) - ord("A") + columna) + fila_de_trabajo].fill = patron_relleno # Falla porque ord(columna_inicial_nombre) es mas grande que 100
 
 
 def Pinta_Rango (rango_seleccionado, patron_relleno):
@@ -214,34 +214,20 @@ for i in range(0, shape_de_df[1]):
         Pinta_Columnas(posicion, redFill)
     else:
         Pinta_Columnas(posicion, yellowFill)
-
+        
+# Ahora pintamos toda la tabla de color amarillo para testear esta funcion que selecciona rangos de la tabla
 Pinta_Rango ("F6:I33", yellowFill)
-# Guardamos los canvios sobrescribiendo el archivo original
-wb.save(NOMBRE_EXCEL_CREADO)
 
 # Ponemos en negrita en todas las celdas en las que aparezca la palaba "AMPA" dicha palabra en negrita (Usamos regex)
-#df['team'] =  [re.sub(r'[\n\r]*','', str(x)) for x in df['team']]
 
-for i in range(CENTENAS, CENTENAS + DECENAS + NUM_LETRAS_ALPHABET):
-    print(Calculador_Nombre_Columnas(i))
-
-print("Valores importantes:")
-print("----------------------------------------------------------------")
-print(Calculador_Nombre_Columnas(0))
-print(Calculador_Nombre_Columnas(NUM_LETRAS_ALPHABET -1))
-print("----------------------------------------------------------------")
-print(Calculador_Nombre_Columnas(DECENAS -1))
-print(Calculador_Nombre_Columnas(DECENAS + NUM_LETRAS_ALPHABET -1))
-print("----------------------------------------------------------------")
-print(Calculador_Nombre_Columnas(CENTENAS + NUM_LETRAS_ALPHABET -1))
-print(Calculador_Nombre_Columnas(CENTENAS + NUM_LETRAS_ALPHABET + DECENAS -1))
-print("----------------------------------------------------------------")
+# Guardamos los canvios sobrescribiendo el archivo original
+wb.save(NOMBRE_EXCEL_CREADO)
 
 # Eliminamos el Excel creado
 os.system(f"rm {NOMBRE_EXCEL_CREADO}")
 
-# Por practicar mas, creamos un archivo de word que contenga estos datos en un informe
+# Por practicar mas, creamos un archivo de word que contenga estos datos en un informe a trabes del Dataframe que hemos generado previamente
 
 ##### TODO: 
-# Falta que el texto que contiene la columna en las funciones de colorear no solo sea de un caracter por ejemplo podriamos a priori trabajar en la celda BB34 
 # Poner en las celdas con las asociaciones, la palabra AMPA en negrita
+# Generar el informe en word con el formato deseado
