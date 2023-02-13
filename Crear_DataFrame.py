@@ -10,6 +10,7 @@ import os
 #import xlsxwriter
 import openpyxl
 from openpyxl.styles import PatternFill, GradientFill
+import docx
 
 # --------------------------------------------------------------------------------------------------------------------------
 # Variables Globales
@@ -18,6 +19,7 @@ from openpyxl.styles import PatternFill, GradientFill
 ENCODING = "latin1"
 PATH_TO_DATA = "subvenciones.csv"
 NOMBRE_EXCEL_CREADO = "Resumen_Subenciones.xlsx"
+NOMBRE_DIR_GUARDADO_INFORMES  = "Informes"
 COLUMNA_INICIO = 5
 FILA_INICIO = 5
 
@@ -186,7 +188,7 @@ df.to_excel (
 
 # Eliminamos el df porque no lo utilizamos mas pero guardamos la forma 
 shape_de_df = df.shape
-del df
+#del df                 # Por el momento no la eliminamos para generar los documentos
 
 # Damos formato a la tabla que nos a generado ------------------------------------------------------------------------
 # Abrimos el arxivo de excel en un Dataframe 
@@ -196,8 +198,6 @@ Libro_Excel = pd.read_excel (
                                 usecols = columnas_seleccionadas,                                                                       # Calculamos un string que contenga el rango de la tabla con la que queremos trabajar
                                 header = FILA_INICIO,                                                                                   # Indicamos la primera fila con datos (que es nuestra cabezera)
                             )
-
-print(Libro_Excel)
 
 # Pintamos todas las columnas
 wb =  openpyxl.load_workbook(NOMBRE_EXCEL_CREADO)     # Abrimos el Libro de excel
@@ -216,7 +216,7 @@ for i in range(0, shape_de_df[1]):
         Pinta_Columnas(posicion, yellowFill)
         
 # Ahora pintamos toda la tabla de color amarillo para testear esta funcion que selecciona rangos de la tabla
-Pinta_Rango ("F6:I33", yellowFill)
+Pinta_Rango ("J6:O33", redFill)
 
 # Ponemos en negrita en todas las celdas en las que aparezca la palaba "AMPA" dicha palabra en negrita (Usamos regex)
 
@@ -227,7 +227,58 @@ wb.save(NOMBRE_EXCEL_CREADO)
 os.system(f"rm {NOMBRE_EXCEL_CREADO}")
 
 # Por practicar mas, creamos un archivo de word que contenga estos datos en un informe a trabes del Dataframe que hemos generado previamente
+if os.path.exists(f"{NOMBRE_DIR_GUARDADO_INFORMES}"):
+    print("El directorio existe")
+else:
+    os.system(f"mkdir {NOMBRE_DIR_GUARDADO_INFORMES }")
+
+# Nos movemos al directorio sobre el que queremos trabajar
+os.chdir(f"{NOMBRE_DIR_GUARDADO_INFORMES}")
+
+for key in df["Asociación"]:
+    # Creamos el documento 
+    document = docx.Document()
+
+    # Escribimos en la primera possición del documento
+    document.add_heading    (
+                                f'\t Resumen de la asociación:\t {key}\n',      # String con los datos
+                                3,                                              # Tamanyo (0 el mas grande a 9 el mas pequeño)
+                            )
+
+    # Creamos la tabla que contiene los datos calculados en nuestro dataframe
+    table = document.add_table(rows=2, cols=3)
+    
+    # Guardamos la fila que sera la cabezera
+    hdr_cells = table.rows[0].cells
+    hdr_cells[1].text = "Resultados de la associación"
+    
+    # Guardamos la siguiente fila en la que pondremos los titulos de cada columna
+    titulos_columnas = table.rows[1].cells
+    titulos_columnas[0].text = df.keys()[1]        
+    titulos_columnas[1].text = df.keys()[2]  
+    titulos_columnas[2].text = df.keys()[3]  
+    
+    # Guardamos la fila sobre la que escribiremos los datos
+    row_cells = table.add_row().cells
+    
+    for num_col in range(0,3):
+        valores = list(df.iloc[0])                              # Guardamos los datos de una fila incluiendo el nombre de la associación
+        row_cells[num_col].text = str(valores[num_col + 1])     # Pasamos la información a un texto
+    
+    # Eliminamos la primera posición (la 0)
+    df = df.iloc[1:]                                            # machacamos la variable sin la poss. cero
+    df.reset_index  ( 
+                        drop=True, 
+                        inplace=True,    
+                    )                                           # reindexamos para que los indices empiezen por 0
+
+    # Guardamos el documento
+    document.save(f'Informe_{key}.docx')
+
+# Volvemos al directorio de trabajo
+os.chdir(f"..")
 
 ##### TODO: 
 # Poner en las celdas con las asociaciones, la palabra AMPA en negrita
 # Generar el informe en word con el formato deseado
+# Poner diferentes separadores, que los datos no solo sean csv
