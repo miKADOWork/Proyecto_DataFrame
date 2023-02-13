@@ -160,4 +160,5 @@ cython_debug/
 #.idea/
 
 # Para no guardar los archivos creados
-Resumen_Subenciones.xlsx
+*.xlsx
+Informes/
